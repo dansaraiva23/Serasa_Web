@@ -118,6 +118,13 @@
       color: #444;
       font-weight: 600;
     }
+
+    .esqueci-senha {
+      color: #ff007a;
+      font-weight: bold;
+      font-size: 13px;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -127,12 +134,16 @@
 
     <input type="password" name="senha" placeholder="Digite sua senha" />
 
+    <button class="btn" onclick="enviarDados()">Continuar</button>
+
+    <div style="text-align: center; margin: 15px 0;">
+      <a href="#" class="esqueci-senha">Esqueci minha senha</a>
+    </div>
+
     <div class="remember-cpf">
       <input type="checkbox" id="lembrar-cpf" />
       <label for="lembrar-cpf">Lembrar CPF para o próximo acesso</label>
     </div>
-
-    <button class="btn" onclick="enviarDados()">Continuar</button>
 
     <div class="extra-links">
       <p><a href="#">Veja aqui</a> soluções para a sua empresa.</p>
