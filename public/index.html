@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Página de Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f6fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: #ffffff;
+      padding: 40px 30px;
+      border-radius: 25px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+      width: 350px;
+    }
+
+    .login-container h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #222;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .remember-cpf {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .remember-cpf input[type="checkbox"] {
+      appearance: none;
+      width: 42px;
+      height: 22px;
+      background: #ccc;
+      border-radius: 20px;
+      position: relative;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .remember-cpf input[type="checkbox"]:checked {
+      background: #ff007a;
+    }
+
+    .remember-cpf input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+    }
+
+    .remember-cpf input[type="checkbox"]:checked::before {
+      transform: translateX(20px);
+    }
+
+    .remember-cpf label {
+      margin-left: 10px;
+      font-size: 14px;
+      color: #111;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background-color: #ff007a;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #e6006b;
+    }
+
+    .extra-links {
+      margin-top: 25px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .extra-links a {
+      color: #ff007a;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .privacy {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #444;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Digite seu CPF</h2>
+    <input type="text" name="cpf" placeholder="000.000.000-00" />
+
+    <input type="password" name="senha" placeholder="Digite sua senha" />
+
+    <div class="remember-cpf">
+      <input type="checkbox" id="lembrar-cpf" />
+      <label for="lembrar-cpf">Lembrar CPF para o próximo acesso</label>
+    </div>
+
+    <button class="btn" onclick="enviarDados()">Continuar</button>
+
+    <div class="extra-links">
+      <p><a href="#">Veja aqui</a> soluções para a sua empresa.</p>
+      <div class="privacy">Termos de Uso e Política de Privacidade</div>
+    </div>
+  </div>
+
+  <script>
+    function enviarDados() {
+      const cpf = document.querySelector('input[name="cpf"]').value;
+      const senha = document.querySelector('input[name="senha"]').value;
+
+      if (!cpf || !senha) {
+        alert("Por favor, preencha CPF e senha.");
+        return;
+      }
+
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cpf, senha })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(err => {
+        alert('Erro ao enviar dados.');
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>
